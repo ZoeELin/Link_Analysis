@@ -47,8 +47,6 @@ def output_HITS(iteration, graph, result_dir, fname):
     # 執行HITS算法
     HITS(graph, iteration)  # 執行HITS算法，傳入圖和迭代次數
 
-    graph.normalize_authority_hub()
-
     # 從圖中獲取計算後的 authority score 和 hub score
     authority_list, hub_list = graph.get_auth_hub_list()
 

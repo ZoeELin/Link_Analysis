@@ -35,8 +35,8 @@ class Graph:
         authority_list = []
         hub_list = []
         for node in self.nodes:
-            authority_list.append(node.authority)
-            hub_list.append(node.hub)
+            authority_list.append(round(node.authority, 3))
+            hub_list.append(round(node.hub, 3))
 
         return authority_list, hub_list
 
@@ -49,12 +49,12 @@ class Graph:
             node.hub = node.hub / hub_sum
 
     def get_pagerank_list(self):
-        pagerank_list = [node.pagerank for node in self.nodes]
+        pagerank_list = [round(node.pagerank, 3) for node in self.nodes]
 
         return pagerank_list
 
     def normalize_pagerank(self):
-        pagerank_sum = sum([node.pagerank for node in self.nodes])
+        pagerank_sum = sum(node.pagerank for node in self.nodes)
         for node in self.nodes:
             node.pagerank = node.pagerank / pagerank_sum
 
@@ -78,16 +78,60 @@ class Node:
             return None
         self.parents.append(new_parent)
 
-    def update_authority(self):
-        self.authority = sum(node.hub for node in self.parents)
+    def cal_authority(self):
+        return sum(node.hub for node in self.parents)
 
-    def update_hub(self):
-        self.hub = sum(node.authority for node in self.children)
+    def cal_hub(self):
+        return sum(node.authority for node in self.children)
 
-    def update_pagerank(self, d, n):
+    # def update_pagerank(self, d, n, pageranks):
+    #     # 對於 parents
+    #     for node in self.parents:
+    #         if node.children == 0:
+    #             pagerank_sum = 1 / n
+    #         else:
+    #             pagerank_sum = sum(
+    #                 node.pagerank / len(node.children) for node in self.parents
+    #             )
+
+    #     # 隨機跳轉
+    #     random_jumping = d / n
+
+    #     # 計算新的 PageRank 值
+    #     return random_jumping + (1 - d) * pagerank_sum
+
+    def update_pagerank(self, d, n, pageranks):
+        pagerank_sum = 0
+
+        # 計算來自所有parent節點的PageRank貢獻
+        for node in self.parents:
+            # 如果parent節點沒有children，則將其貢獻設為0
+            # 通常不會發生這種情況，因為至少有一個child（當前節點）
+            if len(node.children) == 0:
+                pagerank_contribution = 0
+            else:
+                pagerank_contribution = (
+                    pageranks[node.name] / len(node.children)
+                    if len(node.children) > 0
+                    else 0
+                )
+
+            pagerank_sum += pagerank_contribution
+
+        # 隨機跳轉貢獻
+        random_jumping = (1 - d) / n
+
+        # 計算新的 PageRank 值
+        new_pagerank = random_jumping + d * pagerank_sum
+
+        return new_pagerank
+
+    def cal_pagerank(self, d, n):
         in_neighbors = self.parents
+        rank_sum = 0
+
         pagerank_sum = sum(
             (node.pagerank / len(node.children)) for node in in_neighbors
         )
         random_jumping = d / n
-        self.pagerank = random_jumping + (1 - d) * pagerank_sum
+        return random_jumping + (1 - d) * pagerank_sum
