@@ -118,5 +118,5 @@ def output_SimRank(iteration, graph, decay_factor, result_dir, fname):
         os.path.join(path, fname + simrank_fname),
         np.asarray(ans_metrix, dtype="float32"),
         fmt="%.3f",
-        newline=" ",
+        newline="\n",
     )
